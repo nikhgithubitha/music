@@ -89,18 +89,11 @@ const initialTracksList = [
 class App extends Component {
   state = {list: initialTracksList, textInput: ''}
 
-  componentDidMount() {
-    this.resultView()
-  }
-
   changeInput = event => {
-    this.setState({textInput: event.target.value}, this.resultView())
-  }
-
-  resultView = () => {
-    const {list, textInput} = this.state
-    const filteredList = list.includes(
-      each => each.name.toLowerCase() === textInput.toLowerCase(),
+    this.setState({textInput: event.target.value})
+    const {textInput, list} = this.state
+    const filteredList = list.filter(each =>
+      each.name.toLowerCase().includes(textInput.toLowerCase()),
     )
     this.setState({list: filteredList})
   }
@@ -113,42 +106,45 @@ class App extends Component {
 
   outputView = () => {
     const {list} = this.state
-    return (
-      <ul>
-        {list.map(each => (
-          <li key={each.id}>
-            <div>
-              <img src={each.imageUrl} alt="track" />
+    if (list.length !== 0) {
+      return (
+        <ul>
+          {list.map(each => (
+            <li key={each.id}>
               <div>
-                <p>{each.name}</p>
-                <p>{each.genre}</p>
+                <img src={each.imageUrl} alt="track" />
+                <div>
+                  <p>{each.name}</p>
+                  <p>{each.genre}</p>
+                </div>
+                <p>{each.duration}</p>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => this.onDelete(each.id)}
+                    data-testid="delete"
+                  >
+                    <img
+                      src="https://assets.ccbp.in/frontend/react-js/money-manager/delete.png"
+                      alt="delete"
+                    />
+                  </button>
+                </div>
               </div>
-              <p>{each.duration}</p>
-              <div data-testid="delete">
-                <button type="button" onClick={this.onDelete}>
-                  <img
-                    src="https://assets.ccbp.in/frontend/react-js/money-manager/delete.png"
-                    alt="delete"
-                  />
-                </button>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+    return (
+      <div>
+        <p>No Songs Found</p>
+      </div>
     )
   }
 
-  renderEmptyView = () => (
-    <div>
-      <p>No Songs Found</p>
-    </div>
-  )
-
   render() {
-    const {textInput, list} = this.state
-    const result =
-      list.length === 0 ? this.renderEmptyView() : this.outputView()
+    const {textInput} = this.state
     return (
       <div>
         <div className="bg">
@@ -164,7 +160,7 @@ class App extends Component {
             placeholder="Search"
           />
         </div>
-        {result}
+        {this.outputView()}
       </div>
     )
   }
